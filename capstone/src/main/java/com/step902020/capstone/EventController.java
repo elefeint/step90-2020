@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.*;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gcp.data.datastore.core.DatastoreTemplate;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import java.time.LocalDateTime;
@@ -27,15 +30,23 @@ public class EventController {
   @Autowired
   private OrganizationRepository organizationRepository;
 
+  @Autowired
+  private DatastoreTemplate datastoreTemplate;
+
+
   @GetMapping("get-all-events")
-  public Iterable<Event> getAllEvents(
-          @RequestParam("filters") List<String> filters) {
-    Iterable<Event> events = this.eventRepository.findAll();
-    for (int i = 0; i < filters.size(); i++) {
-      if (filters.get(i).equals("food")) {
-        events = this.eventRepository.findAllByFoodAvailable(true);
-      }
-    }
+  public Iterable<Event> getAllEvent() {
+    Iterable<Event> events = this.eventRepository.findAll(
+            Example.of(new Event(null, null, null,
+                    null, 0, 0,
+
+                    null, null),
+            ExampleMatcher.matching().withIgnorePaths("organization", "eventLatitude",
+                    "eventLongitude")));
+    //Event event = new Event();
+    //event.setFoodAvailable(Boolean.TRUE);
+
+    //event.setRequiredFee(Boolean.FALSE);
     return events;
   }
 
@@ -53,7 +64,7 @@ public class EventController {
      @RequestParam("eventDescription") String eventDescription,
      @RequestParam("eventLatitude") String eventLatitude,
      @RequestParam("eventLongitude") String eventLongitude,
-     @RequestParam("foodAvaliable") Optional<Boolean> foodAvaliable,
+     @RequestParam("foodAvailable") Optional<Boolean> foodAvailable,
      @RequestParam("requiredFee") Optional<Boolean> requiredFee,
      @RequestParam("event-id") String eventId
     ) throws IOException {
@@ -68,7 +79,9 @@ public class EventController {
         event.setOrganization(organization);
         this.eventRepository.save(event);
       } else {
-        Event newEvent = new Event(organization, eventTitle, eventDateTime, eventDescription, Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude), foodAvaliable.orElse(false), requiredFee.orElse(false));
+        Event newEvent = new Event(organization, eventTitle, eventDateTime, eventDescription,
+                Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude),
+                foodAvailable.orElse(false), requiredFee.orElse(false));
         this.eventRepository.save(newEvent);
         organization.addEvent(newEvent);
         this.organizationRepository.save(organization);
