@@ -4,6 +4,8 @@ import org.springframework.cloud.gcp.data.datastore.core.mapping.Entity;
 import org.springframework.cloud.gcp.data.datastore.core.mapping.Field;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.annotation.Id;
+import org.springframework.lang.Nullable;
+
 import java.util.*;
 
 @Entity(name = "event")
