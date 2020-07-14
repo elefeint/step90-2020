@@ -28,8 +28,15 @@ public class EventController {
   private OrganizationRepository organizationRepository;
 
   @GetMapping("get-all-events")
-  public Iterable<Event> getAllEvents() {
-    return this.eventRepository.findAll();
+  public Iterable<Event> getAllEvents(
+          @RequestParam("filters") List<String> filters) {
+    Iterable<Event> events = this.eventRepository.findAll();
+    for (int i = 0; i < filters.size(); i++) {
+      if (filters.get(i).equals("food")) {
+        events = this.eventRepository.findAllByFoodAvailable(true);
+      }
+    }
+    return events;
   }
 
   @GetMapping("get-event")

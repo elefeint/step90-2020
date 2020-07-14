@@ -33,8 +33,8 @@ public class Event{
   @Field(name="eventLongitude")
   double eventLongitude;
 
-  @Field(name="foodAvaliable")
-  Boolean foodAvaliable;
+  @Field(name="foodAvailable")
+  Boolean foodAvailable;
 
   @Field(name="requiredFee")
   Boolean requiredFee;
@@ -51,7 +51,7 @@ public class Event{
     this.eventDescription = eventDescription;
     this.eventLatitude = eventLatitude;
     this.eventLongitude = eventLongitude;
-    this.foodAvaliable = foodAvaliable == null ? false : foodAvaliable;
+    this.foodAvailable = foodAvaliable == null ? false : foodAvailable;
     this.requiredFee = requiredFee == null ? false : requiredFee;
     this.reviews = new ArrayList();
   }
@@ -109,8 +109,8 @@ public class Event{
   public void setEventLongitude(double eventLongitude) {
     this.eventLongitude = eventLongitude;
   }
-  public void setFoodAvaliable(Boolean foodAvaliable) {
-    this.foodAvaliable = foodAvaliable;
+  public void setFoodAvailable(Boolean foodAvailable) {
+    this.foodAvailable = foodAvailable;
   }
   public void setRequiredFee(Boolean requiredFee) {
     this.requiredFee = requiredFee;

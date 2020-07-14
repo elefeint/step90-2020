@@ -17,6 +17,14 @@ var reviewsExist = false;
  * Retrieves events from server
  */
 function getEvents() {
+  var filters = new Array();
+  var filterNodes =  document.querySelectorAll('.selected');
+  for (i = 0; i < filterNodes.length; i++) {
+    filters.push(filterNodes[i].value);
+  }
+  console.log(filters);
+  const params = new URLSearchParams();
+  params.append('filters', filters);
   fetch('get-all-events').then(response => response.json()).then((events) => {
 
     const eventListElement = document.getElementById('events');
@@ -185,6 +193,7 @@ function toggleBorderSelection(elementId) {
     }
   }
 }
+
 
 /*
  * Reviews are temp on event listing so remove to see finalized event search page
