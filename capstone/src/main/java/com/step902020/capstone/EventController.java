@@ -5,6 +5,8 @@ import java.util.*;
 import java.time.LocalDateTime;
 
 import com.step902020.capstone.security.CurrentUser;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gcp.data.datastore.core.DatastoreTemplate;
 import org.springframework.data.domain.Example;
@@ -37,19 +39,19 @@ public class EventController {
 
 
   @GetMapping("get-all-events")
-  public Iterable<Event> getAllEvent() {
+  public List<Event> getAllEvent() {
     Iterable<Event> events = this.eventRepository.findAll(
             Example.of(new Event(null, null, null,
                     null, 0, 0,
 
                     null, null),
-            ExampleMatcher.matching().withIgnorePaths("organization", "eventLatitude",
+            ExampleMatcher.matching().withIgnorePaths("datastoreID", "organization", "eventLatitude",
                     "eventLongitude")));
     //Event event = new Event();
     //event.setFoodAvailable(Boolean.TRUE);
 
     //event.setRequiredFee(Boolean.FALSE);
-    return events;
+    return StreamSupport.stream(events.spliterator(), false).collect(Collectors.toList());
   }
 
   @GetMapping("get-event")
