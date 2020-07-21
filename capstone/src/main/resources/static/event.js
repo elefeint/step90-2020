@@ -119,10 +119,10 @@ function createReviewContainerElement(reviewsContainer, reviews, userEmail) {
     const reviewTextElement = createElement(reviewContainer, 'p', review.text);
     reviewTextElement.className = 'review-text';
 
-    const reviewLikeElement = createElement(reviewContainer, 'button',  review.likes + 'Likes');
+    const reviewLikeElement = createElement(reviewContainer, 'button',  review.likes + ' Likes');
     reviewLikeElement.addEventListener('click', () => {
       likeReview(review.datastoreId).then((reviewLikes) => {
-        reviewLikeElement.innerText = reviewLikes + 'Likes';
+        reviewLikeElement.innerText = reviewLikes + ' Likes';
       });
     });
 
