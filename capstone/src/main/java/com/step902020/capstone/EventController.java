@@ -27,6 +27,9 @@ public class EventController {
   private EventRepository eventRepository;
 
   @Autowired
+  private IndividualRepository individualRepository;
+
+  @Autowired
   private OrganizationRepository organizationRepository;
 
   @GetMapping("get-all-events")
@@ -48,7 +51,7 @@ public class EventController {
      @RequestParam("eventDescription") String eventDescription,
      @RequestParam("eventLatitude") String eventLatitude,
      @RequestParam("eventLongitude") String eventLongitude,
-     @RequestParam("foodAvaliable") Optional<Boolean> foodAvailable,
+     @RequestParam("foodAvailable") Optional<Boolean> foodAvailable,
      @RequestParam("requiredFee") Optional<Boolean> requiredFee,
      @RequestParam("event-id") String eventId
     ) throws IOException {
@@ -62,7 +65,9 @@ public class EventController {
         event.setEventTitle(eventTitle);
         this.eventRepository.save(event);
       } else {
-        Event newEvent = new Event(organization.getName(), organization.getDatastoreId(), eventTitle, eventDateTime, eventDescription, Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude), foodAvailable.orElse(false), requiredFee.orElse(false));
+        Event newEvent = new Event(organization.getName(), organization.getDatastoreId(), eventTitle, eventDateTime,
+                eventDescription, Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude),
+                foodAvailable.orElse(false), requiredFee.orElse(false));
         this.eventRepository.save(newEvent);
         organization.addEvent(newEvent);
         this.organizationRepository.save(organization);
@@ -70,14 +75,24 @@ public class EventController {
       return new RedirectView("manageevents.html", true);
   }
 
+  /**
+   * Add new review to event
+   * @param user current user
+   * @param eventId Event's datastore id
+   * @param text Review's text
+   * @return Updated review list
+   */
   @PostMapping("/new-review")
   public List<Review> addReview(
+          CurrentUser user,
           @RequestParam("text") String text,
-          @RequestParam("eventId") Long eventId,
-          @RequestParam("name") String name) throws IOException {
+          @RequestParam("eventId") Long eventId) throws IOException {
 
     Event event = this.eventRepository.findById(eventId).get();
-    Review review = new Review(text, name);
+    Individual individual = this.individualRepository.findFirstByEmail(user.getEmail());
+    String individualName = individual.firstName + " " + individual.lastName;
+    String individualEmail = individual.email;
+    Review review = new Review(individualName, individualEmail, text);
     event.addReview(review);
     this.eventRepository.save(event);
     return event.reviews;
