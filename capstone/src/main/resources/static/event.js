@@ -1,3 +1,49 @@
+/* Function to prefill event information if editing event */
+function loadEventInfo() {
+  const event = window.location.hash.substring(1);
+  if (event != "") {
+    fetch('get-event?event-id=' + event).then(response => response.json()).then((data) => {
+      document.getElementById("eventTitle").value = data.eventTitle;
+      document.getElementById("eventDateTime").value = data.eventDateTime;
+      document.getElementById("eventLatitude").value = data.eventLatitude;
+      document.getElementById("eventLongitude").value = data.eventLongitude;
+      document.getElementById("eventDescription").value = data.description;
+      document.getElementById("event-id").value = data.datastoreId;
+      if (data.foodAvailable == true) {
+        document.getElementById("foodAvailable").checked = true;
+      }
+      if (data.requiredFee == true) {
+        document.getElementById("requiredFee").checked = true;
+      }
+    });
+  }
+}
+
+/* Function to create Google Map */
+async function createMap() {
+  var princetonLatLng = {lat: 40.3428452, lng: -74.6568153};
+  const campusMap = new google.maps.Map(
+    document.getElementById('map'),
+    {center: princetonLatLng, zoom: 16});
+
+   const response = await fetch('get-all-events');
+   const jsonEvents = await response.json();
+   jsonEvents.forEach(event => createMarker(event, campusMap));
+}
+
+/* Create a new marker for each event
+ * @param event - event object
+ * @param campusMap - Google Map object
+ */
+function createMarker(event,campusMap) {
+  var eventPosition = {lat: event.eventLatitude, lng: event.eventLongitude};
+  const newMarker = new google.maps.Marker({
+    map: campusMap,
+    title: event.eventTitle,
+    position: eventPosition
+  })
+}
+
 /**
  * Retrieves events from server if current user has a profile
  */
@@ -57,6 +103,50 @@ function createEventElement(eventListElement, event, isIndividual, userEmail) {
   // Only for individual users can save events
   if (isIndividual) {
     createSaveEventButton(eventElement, event);
+  }
+}
+
+/**
+ * Create a page to view event details
+ * @param event Event object
+ * @param isIndividual if current user is an individual user
+ * @param userEmail current user's email
+ */
+function showEventPage(event, isIndividual, userEmail) {
+  fillEventDetails(event);
+  const modal = document.getElementById('modal');
+  modal.style.display = 'block';
+
+  const reviewContainer = document.getElementById("review-container");
+  reviewContainer.innerHTML = '';
+  createReviewElement(event, isIndividual, userEmail);
+
+  if (event.reviews.length) { // Format time to *** time ago
+    timeago.render(document.querySelectorAll('.timeago'));
+  }
+}
+
+/**
+ * Populate event details in the modal
+ * @param event Event object
+ */
+function fillEventDetails(event) {
+  var date = new Date(event.eventDateTime);
+
+  setElementInnerText("eventTitle", event.eventTitle);
+  setElementInnerText("eventTime", date.toString().substring(0, 21)); // Exclude GMT time zone offset
+  setElementInnerText("eventLocation", event.eventLatitude);
+  setElementInnerText("eventOrganization", event.organizationName);
+  setElementInnerText("eventDescription", event.eventDescription);
+}
+
+/**
+ * Closes modal if user clicks outside of it a page to view event details
+ */
+window.onclick = function(event) {
+  const modal = document.getElementById('modal');
+  if (event.target == modal) {
+    modal.style.display = "none";
   }
 }
 
@@ -127,24 +217,32 @@ function createReviewContainerElement(reviewsContainer, reviews, userEmail) {
     });
 
     if (review.individualEmail == userEmail) {
-      reviewAuthorFeatures(reviewContainer, reviewTextElement, review.datastoreId);
+      reviewDeleteButton(reviewContainer, review.datastoreId);
+      reviewEditButton(reviewContainer, reviewTextElement, review.datastoreId);
     }
   })
 }
 
 /**
- * Add delete and edit functionality for review's author
+ * Add delete functionality for review's author
  * @param reviewContainer Review's container
- * @param reviewTextElement Container for review's text
  * @param reviewId Review's datastore id
  */
-function reviewAuthorFeatures(reviewContainer, reviewTextElement, reviewId) {
+function reviewDeleteButton(reviewContainer, reviewId) {
   const deleteButton = createElement(reviewContainer, 'button', 'Delete');
   deleteButton.addEventListener('click', () => {
     deleteReview(reviewId);
     reviewContainer.remove();
   });
+}
 
+/**
+ * Add edit functionality for review's author
+ * @param reviewContainer Review's container
+ * @param reviewTextElement Container for review's text
+ * @param reviewId Review's datastore id
+ */
+function reviewEditButton(reviewContainer, reviewTextElement, reviewId) {
   const editButton = createElement(reviewContainer, 'button', 'Edit');
   editButton.addEventListener('click', () => {
     if (editButton.innerText == 'Edit') {
@@ -213,66 +311,6 @@ function setReviewText(reviewId, newText) {
   getEvents();
 }
 
-/* Function to prefill event information if editing event */
-function loadEventInfo() {
-  const event = window.location.hash.substring(1);
-  if (event != "") {
-    fetch('get-event?event-id=' + event).then(response => response.json()).then((data) => {
-      document.getElementById("eventTitle").value = data.eventTitle;
-      document.getElementById("eventDateTime").value = data.eventDateTime;
-      document.getElementById("eventLatitude").value = data.eventLatitude;
-      document.getElementById("eventLongitude").value = data.eventLongitude;
-      document.getElementById("eventDescription").value = data.description;
-      document.getElementById("event-id").value = data.datastoreId;
-      if (data.foodAvailable == true) {
-        document.getElementById("foodAvailable").checked = true;
-      }
-      if (data.requiredFee == true) {
-        document.getElementById("requiredFee").checked = true;
-      }
-    });
-  }
-}
-
-/* Function to create Google Map */
-async function createMap() {
-  var princetonLatLng = {lat: 40.3428452, lng: -74.6568153};
-  const campusMap = new google.maps.Map(
-    document.getElementById('map'),
-    {center: princetonLatLng, zoom: 16});
-
-   const response = await fetch('get-all-events');
-   const jsonEvents = await response.json();
-   jsonEvents.forEach(event => createMarker(event, campusMap));
-}
-
-/* Create a new marker for each event
- * @param event - event object
- * @param campusMap - Google Map object
- */
-function createMarker(event,campusMap) {
-  var eventPosition = {lat: event.eventLatitude, lng: event.eventLongitude};
-  const newMarker = new google.maps.Marker({
-    map: campusMap,
-    title: event.eventTitle,
-    position: eventPosition
-  })
-}
-  
-/**
- * Create a page to view event details
- * @param eventId event's datastore id
- */
-function fillDetails(event) {
-  var date = new Date(event.eventDateTime);
-
-  setElementInnerText("eventTitle", event.eventTitle);
-  setElementInnerText("eventTime", date.toString().substring(0, 21)); // Exclude GMT time zone offset
-  setElementInnerText("eventLocation", event.eventLatitude);
-  setElementInnerText("eventOrganization", event.organizationName);
-  setElementInnerText("eventDescription", event.eventDescription);
-}
-
 /**
  * Fill an existing document element's inner text
  * @param elementId document element's id
@@ -297,33 +335,4 @@ function createElement(appendElement, elementType, innerText){
   element.innerText = innerText;
   appendElement.appendChild(element);
   return element;
-}
-
-/**
- * Create a page to view event details
- * @param eventId event's datastore id
- * @param isIndividual if current user is an individual user
- * @param userEmail current user's email
- */
-function showEventPage(event, isIndividual, userEmail) {
-  fillDetails(event);
-  const modal = document.getElementById('modal');
-  modal.style.display = 'block';
-
-  const reviewContainer = document.getElementById("review-container");
-  reviewContainer.innerHTML = '';
-  createReviewElement(event, isIndividual, userEmail);
-
-  if (event.reviews.length) { // Format time to *** time ago
-    timeago.render(document.querySelectorAll('.timeago'));
-  }
-
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  const modal = document.getElementById('modal');
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
 }
