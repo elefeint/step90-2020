@@ -28,6 +28,20 @@ function getEvents() {
   var filterNodes =  document.querySelectorAll('.selected');
   for (i = 0; i < filterNodes.length; i++) {
     filters.push(filterNodes[i].value);
+<<<<<<< HEAD
+=======
+  }
+  console.log(filters);
+  const params = new URLSearchParams();
+  params.append('filters', filters);
+
+  var userType = sessionStorage.getItem("user-type");
+  if (userType == null) {
+    getUserType(false);
+    if (sessionStorage.getItem("user-type") == null) {
+      return;
+    }
+>>>>>>> 1b8661b76285d111f3f0f413e1d17a173a457d24
   }
   console.log(filters);
   const params = new URLSearchParams();
@@ -178,3 +192,17 @@ function toggleBorderSelection(elementId) {
     }
   }
 }
+<<<<<<< HEAD
+=======
+
+
+/*
+ * Reviews are temp on event listing so remove to see finalized event search page
+ */
+function removeReviews() {
+  const reviews = document.getElementsByClassName('reviews');
+  while(reviews.length > 0){
+    reviews[0].parentNode.removeChild(reviews[0]);
+  }
+}
+>>>>>>> 1b8661b76285d111f3f0f413e1d17a173a457d24
