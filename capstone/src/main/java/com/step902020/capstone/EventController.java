@@ -39,18 +39,18 @@ public class EventController {
 
 
   @GetMapping("get-all-events")
-  public List<Event> getAllEvent() {
+  public List<Event> getAllEvent(
+    @RequestParam("foodAvailable") Boolean foodAvailable,
+    @RequestParam("requiredFee") Boolean requiredFee) throws IOException {
     Iterable<Event> events = this.eventRepository.findAll(
-            Example.of(new Event(null, null, null,
-                    null, 0, 0,
+      Example.of(new Event(null, 0, null,
+                null, null, 0,
+                0, foodAvailable., requiredFee),
+      ExampleMatcher.matching().withIgnorePaths("datastoreId", "organizationId", "eventLatitude", "eventLongitude")
+      )
 
-                    null, null),
-            ExampleMatcher.matching().withIgnorePaths("datastoreID", "organization", "eventLatitude",
-                    "eventLongitude")));
-    //Event event = new Event();
-    //event.setFoodAvailable(Boolean.TRUE);
+    );
 
-    //event.setRequiredFee(Boolean.FALSE);
     return StreamSupport.stream(events.spliterator(), false).collect(Collectors.toList());
   }
 
@@ -86,7 +86,9 @@ public class EventController {
         event.setRequiredFee(requiredFee.orElse(false));
         this.eventRepository.save(event);
       } else {
-        Event newEvent = new Event(organization.getName(), organization.getDatastoreId(), eventTitle, eventDateTime, eventDescription, Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude), foodAvailable.orElse(false), requiredFee.orElse(false));
+        Event newEvent = new Event(organization.getName(), organization.getDatastoreId(), eventTitle, eventDateTime,
+                eventDescription, Double.parseDouble(eventLatitude), Double.parseDouble(eventLongitude),
+                foodAvailable.orElse(false), requiredFee.orElse(false));
         this.eventRepository.save(newEvent);
         organization.addEvent(newEvent);
         this.organizationRepository.save(organization);

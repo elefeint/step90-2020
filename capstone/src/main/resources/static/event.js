@@ -14,7 +14,19 @@ function getEvents() {
 /* helper function to get all events for search page */
 function getAllEventsForSearch(data) {
   var displaySaveButton = data.userType == "individual";
-  fetch('get-all-events').then(response => response.json()).then((events) => {
+
+  const params = new URLSearchParams();
+  const foodAvailable = false;
+  const requiredFee = false;
+  var filters = document.querySelectorAll('.selected');
+  if (document.getElementById('foodAvailable').classList.contains('selected') {
+     foodAvailable = true;
+  }
+  if (document.getElementById('requiredFee').classList.contains('selected') {
+     requiredFee = true;
+  }
+
+  fetch('get-all-events?foodAvailable=' + foodAvailable + '&requiredFee=' + requiredFee).then(response => response.json()).then((events) => {
 
     const eventListElement = setElementInnerText('events', ''); // Clear elements in div
 
@@ -56,7 +68,7 @@ function createEventElement(eventListElement, event, displaySaveButton) {
 
   // Displays only for individual users
   if (displaySaveButton) {
-    eventElement.appendChild(createSaveEventButton(event));
+    createSaveEventButton(eventElement, event);
   }
 }
 

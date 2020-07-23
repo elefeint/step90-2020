@@ -42,7 +42,9 @@ public class Event{
   @Reference
   List<Review> reviews;
 
-  public Event(String organizationName, long organizationId, String eventTitle,String eventDateTime, String eventDescription, double eventLatitude, double eventLongitude, Boolean foodAvailable, Boolean requiredFee) {
+  public Event(String organizationName, long organizationId, String eventTitle,String eventDateTime,
+               String eventDescription, double eventLatitude, double eventLongitude,
+               Boolean foodAvailable, Boolean requiredFee) {
     this.organizationName = organizationName;
     this.organizationId = organizationId;
     this.eventTitle = eventTitle;
@@ -50,8 +52,8 @@ public class Event{
     this.eventDescription = eventDescription;
     this.eventLatitude = eventLatitude;
     this.eventLongitude = eventLongitude;
-    this.foodAvailable = foodAvailable == null ? false : foodAvailable;
-    this.requiredFee = requiredFee == null ? false : requiredFee;
+    this.foodAvailable = foodAvailable;
+    this.requiredFee = requiredFee;
     this.reviews = new ArrayList();
   }
 
