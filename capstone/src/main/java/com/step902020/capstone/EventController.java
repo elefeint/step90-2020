@@ -42,10 +42,14 @@ public class EventController {
   public List<Event> getAllEvent(
     @RequestParam("foodAvailable") Boolean foodAvailable,
     @RequestParam("requiredFee") Boolean requiredFee) throws IOException {
+    // False values changed to null for matching
+    foodAvailable = foodAvailable == false ? null: foodAvailable;
+    requiredFee = requiredFee == false ? null: requiredFee;
+
     Iterable<Event> events = this.eventRepository.findAll(
       Example.of(new Event(null, 0, null,
                 null, null, 0,
-                0, foodAvailable., requiredFee),
+                0, foodAvailable, requiredFee),
       ExampleMatcher.matching().withIgnorePaths("datastoreId", "organizationId", "eventLatitude", "eventLongitude")
       )
 

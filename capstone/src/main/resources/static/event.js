@@ -15,18 +15,7 @@ function getEvents() {
 function getAllEventsForSearch(data) {
   var displaySaveButton = data.userType == "individual";
 
-  const params = new URLSearchParams();
-  const foodAvailable = false;
-  const requiredFee = false;
-  var filters = document.querySelectorAll('.selected');
-  if (document.getElementById('foodAvailable').classList.contains('selected') {
-     foodAvailable = true;
-  }
-  if (document.getElementById('requiredFee').classList.contains('selected') {
-     requiredFee = true;
-  }
-
-  fetch('get-all-events?foodAvailable=' + foodAvailable + '&requiredFee=' + requiredFee).then(response => response.json()).then((events) => {
+  fetch('get-all-events?foodAvailable=' + selectedFilter('food') + '&requiredFee=' + selectedFilter('free')).then(response => response.json()).then((events) => {
 
     const eventListElement = setElementInnerText('events', ''); // Clear elements in div
 
@@ -35,7 +24,17 @@ function getAllEventsForSearch(data) {
     })
   });
 }
-
+/**
+ * Check if a filter has been selected
+ * @param elementId Id of filter element
+ * @return true if filter was selected, false if not
+ */
+function selectedFilter(elementId){
+  if (document.getElementById(elementId).classList.contains('selected')) {
+    return true;
+  }
+  return false;
+}
 /**
  * Create a formatted list of events
  * @param eventListElement DOM element to append
